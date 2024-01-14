@@ -25,7 +25,6 @@ def update_hotkey():
     kb.add_hotkey('alt+1', trigger_key_press, args=[entry1.get()])
     kb.add_hotkey('alt+2', trigger_key_press, args=[entry2.get()])
     kb.add_hotkey('alt+3', trigger_key_press, args=[entry3.get()])
-    kb.add_hotkey('esc', on_closing)
 
 width  = 400
 hight  = 100
@@ -58,6 +57,5 @@ window.protocol("WM_DELETE_WINDOW", on_closing)
 kb.add_hotkey('alt+1', trigger_key_press, args=[entry1.get()])
 kb.add_hotkey('alt+2', trigger_key_press, args=[entry2.get()])
 kb.add_hotkey('alt+3', trigger_key_press, args=[entry3.get()])
-kb.add_hotkey('esc', on_closing)
 
 window.mainloop()
