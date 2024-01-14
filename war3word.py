@@ -30,11 +30,14 @@ def update_hotkey():
 width  = 400
 hight  = 100
 window = tk.Tk(className="一键喊话")
+window.iconbitmap('icon2.ico')
 arg1 = tk.StringVar(value="hg")
 arg2 = tk.StringVar(value="3")
 arg3 = tk.StringVar(value="q")
 window.geometry("{}x{}".format(width,hight))
 center_window(window,width,hight)
+window.resizable(False, False)
+
 label1 = tk.Label(text="Alt + 1:",justify="left",width=10,height=1,font=(12))
 label2 = tk.Label(text="Alt + 2:",justify="left",width=10,height=1,font=(12))
 label3 = tk.Label(text="Alt + 3:",justify="left",width=10,height=1,font=(12))
