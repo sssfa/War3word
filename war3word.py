@@ -43,6 +43,28 @@ def init_config():
     with open('config.ini', 'w') as config_file:
         config.write(config_file)
 
+class Theme:
+    def __init__(self,bg_entry,bg_button,fg_button,bg_window):
+        self.bg_entry  = bg_entry
+        self.fg_entry  = fg_button
+        self.bg_button = bg_button
+        self.fg_button = fg_button
+        self.bg_window = bg_window
+        self.bg_label  = bg_window
+        self.fg_label  = fg_button
+
+def switch_theme():
+    global theme_index
+    theme_index = (theme_index + 1)%len(theme_list)
+    print('{} switch to {},totals {}'.format(theme_index,theme_index+1,len(theme_list)))
+    next_theme = theme_list[theme_index]
+    window.configure (bg=next_theme.bg_window)
+    button1.configure(bg=next_theme.bg_button, fg=next_theme.fg_button)
+    button2.configure(bg=next_theme.bg_button, fg=next_theme.fg_button)
+    for index in range(3):
+        label_list[index].configure(bg=next_theme.bg_label,fg=next_theme.fg_label)
+        entry_list[index].configure(bg=next_theme.bg_entry,fg=next_theme.fg_entry)
+
 if __name__ == "__main__":
     #config the variable      
     config = configparser.ConfigParser()
@@ -52,9 +74,11 @@ if __name__ == "__main__":
     width  = config.getint('Settings', 'Window-Width')
     hight  = config.getint('Settings', 'Window-height')
     icon   = config.get('Settings', 'Icon')
-    bg_entry  = '#edf7f7'
-    bg_button = '#7086ff'
-    bg_window = '#ffffff'
+    theme0 = Theme('#edf7f7','#a3d4b9','#000000','#d5dbd9')
+    theme1 = Theme('#542d66','#542d66','#b9c9c4','#181b47')
+    theme2 = Theme('#859699','#68a9b3','#000000','#c8dde0')
+    theme_list = [theme0,theme1,theme2]
+    theme_index = 0
     #internal variable
     alt_list = [config.get('Settings', 'Alt+{}'.format(index+1)) for index in range(3)]
 
@@ -62,19 +86,38 @@ if __name__ == "__main__":
     window = tk.Tk(className="一键喊话")
     window.iconbitmap(icon)
     window.geometry("{}x{}".format(width,hight))
-    window.configure(bg = bg_window)
+    window.configure(bg = theme_list[theme_index].bg_window)
     center_window(window,width,hight)
     window.resizable(False, False)
     window.protocol("WM_DELETE_WINDOW", on_closing)
 
     #Tkinter variable
     arg_list = [tk.StringVar(value=alt_list[index]) for index in range(3)]
-    label_list = [tk.Label(text="Alt + {}:".format(index+1),justify="left",width=10,height=1,font=(12)) for index in range(3)]
-    entry_list = [tk.Entry(textvariable=arg_list[index],font=(12),bg= bg_entry) for index in range(3)]
+    label_list = [tk.Label(text="Alt + {}:".format(index+1),
+                            fg= theme_list[theme_index].fg_label,
+                            bg= theme_list[theme_index].bg_label,
+                            justify="left",
+                            width  =10,
+                            height =1,
+                            font =(12)) for index in range(3)]
+    entry_list = [tk.Entry(textvariable=arg_list[index],
+                           font=(12),
+                           fg  = theme_list[theme_index].fg_entry,
+                           bg  = theme_list[theme_index].bg_entry) for index in range(3)]
+    button1 = tk.Button(window, text="保存配置",
+                        command=update_hotkey,
+                        fg = theme_list[theme_index].fg_button,
+                        bg = theme_list[theme_index].bg_button
+                        )
+    button2 = tk.Button(window, text="切换主题", 
+                        command=switch_theme,
+                        fg = theme_list[theme_index].fg_button,
+                        bg = theme_list[theme_index].bg_button
+                        )
 
     #add the widget in window
-    button = tk.Button(window, text="Update", command=update_hotkey,fg="#000000",bg = bg_button)
-    button.grid(row=1, column=2, rowspan=3, padx=20)
+    button1.grid(row=0, column=2,rowspan=2,padx=20)
+    button2.grid(row=2, column=2)
     for index in range(3):
         label_list[index].grid(row=index, column=0)
         entry_list[index].grid(row=index, column=1)  
