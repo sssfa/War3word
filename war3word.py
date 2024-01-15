@@ -19,20 +19,19 @@ def center_window(window,width,hight):
 
 def on_closing():
     print("Exit the program,Save the config in config.ini")
-    config.set('Settings', 'Alt+1', entry1.get())
-    config.set('Settings', 'Alt+2', entry2.get())
-    config.set('Settings', 'Alt+3', entry3.get())
+    for index in range(3):
+        kb.add_hotkey('alt+{}'.format(index+1), trigger_key_press, args=[entry_list[index].get()])
+        config.set('Settings', 'Alt+{}'.format(index+1), entry_list[index].get())
     with open('config.ini', 'w') as config_file:
         config.write(config_file)
     window.destroy()
 
 def update_hotkey():
     kb.unhook_all_hotkeys()
-    kb.add_hotkey('alt+1', trigger_key_press, args=[entry1.get()])
-    kb.add_hotkey('alt+2', trigger_key_press, args=[entry2.get()])
-    kb.add_hotkey('alt+3', trigger_key_press, args=[entry3.get()])
+    for index in range(3):
+        kb.add_hotkey('alt+{}'.format(index+1), trigger_key_press, args=[entry_list[index].get()])
 
-def init_config(config):
+def init_config():
     config['Settings'] = {
         'Window-Width': 400,
         'Window-height': 100,
@@ -43,46 +42,45 @@ def init_config(config):
         }
     with open('config.ini', 'w') as config_file:
         config.write(config_file)
-        
-config = configparser.ConfigParser()
-if not os.path.exists('config.ini'):
-    init_config(config)
-config.read('config.ini')
-width  = config.getint('Settings', 'Window-Width')
-hight  = config.getint('Settings', 'Window-height')
-icon   = config.get('Settings', 'Icon')
-alt_1  = config.get('Settings', 'Alt+1')
-alt_2  = config.get('Settings', 'Alt+2')
-alt_3  = config.get('Settings', 'Alt+3')
 
-window = tk.Tk(className="一键喊话")
-window.iconbitmap(icon)
-arg1 = tk.StringVar(value = alt_1)
-arg2 = tk.StringVar(value = alt_2)
-arg3 = tk.StringVar(value = alt_3)
-window.geometry("{}x{}".format(width,hight))
-center_window(window,width,hight)
-window.resizable(False, False)
+if __name__ == "__main__":
+    #config the variable      
+    config = configparser.ConfigParser()
+    if not os.path.exists('config.ini'):
+        init_config()
+    config.read('config.ini')
+    width  = config.getint('Settings', 'Window-Width')
+    hight  = config.getint('Settings', 'Window-height')
+    icon   = config.get('Settings', 'Icon')
+    bg_entry  = '#edf7f7'
+    bg_button = '#7086ff'
+    bg_window = '#ffffff'
+    #internal variable
+    alt_list = [config.get('Settings', 'Alt+{}'.format(index+1)) for index in range(3)]
 
-label1 = tk.Label(text="Alt + 1:",justify="left",width=10,height=1,font=(12))
-label2 = tk.Label(text="Alt + 2:",justify="left",width=10,height=1,font=(12))
-label3 = tk.Label(text="Alt + 3:",justify="left",width=10,height=1,font=(12))
-entry1 = tk.Entry(textvariable=arg1,font=(12),bg="#edf7f7")
-entry2 = tk.Entry(textvariable=arg2,font=(12),bg="#edf7f7")
-entry3 = tk.Entry(textvariable=arg3,font=(12),bg="#edf7f7")
-button = tk.Button(window, text="Update", command=update_hotkey,fg="#000000",bg="#7086ff")
+    #Tkinter initialize
+    window = tk.Tk(className="一键喊话")
+    window.iconbitmap(icon)
+    window.geometry("{}x{}".format(width,hight))
+    window.configure(bg = bg_window)
+    center_window(window,width,hight)
+    window.resizable(False, False)
+    window.protocol("WM_DELETE_WINDOW", on_closing)
 
-button.grid(row=1, column=2, rowspan=3, padx=20)
-label1.grid(row=0, column=0)
-label2.grid(row=1, column=0)
-label3.grid(row=2, column=0)
-entry1.grid(row=0, column=1)
-entry2.grid(row=1, column=1)
-entry3.grid(row=2, column=1)
+    #Tkinter variable
+    arg_list = [tk.StringVar(value=alt_list[index]) for index in range(3)]
+    label_list = [tk.Label(text="Alt + {}:".format(index+1),justify="left",width=10,height=1,font=(12)) for index in range(3)]
+    entry_list = [tk.Entry(textvariable=arg_list[index],font=(12),bg= bg_entry) for index in range(3)]
 
-window.protocol("WM_DELETE_WINDOW", on_closing) 
-kb.add_hotkey('alt+1', trigger_key_press, args=[entry1.get()])
-kb.add_hotkey('alt+2', trigger_key_press, args=[entry2.get()])
-kb.add_hotkey('alt+3', trigger_key_press, args=[entry3.get()])
+    #add the widget in window
+    button = tk.Button(window, text="Update", command=update_hotkey,fg="#000000",bg = bg_button)
+    button.grid(row=1, column=2, rowspan=3, padx=20)
+    for index in range(3):
+        label_list[index].grid(row=index, column=0)
+        entry_list[index].grid(row=index, column=1)  
 
-window.mainloop()
+    #add the hotkey
+    for index in range(3):
+        kb.add_hotkey('alt+{}'.format(index+1), trigger_key_press, args=[entry_list[index].get()])
+
+    window.mainloop()
