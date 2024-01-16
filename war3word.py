@@ -20,7 +20,7 @@ def center_window(window,width,hight):
 def on_closing():
     print("Exit the program,Save the config in config.ini")
     config.set('Settings', 'Theme', str(theme_index))
-    for index in range(3):
+    for index in range(hk_totoals):
         kb.add_hotkey('alt+{}'.format(index+1), trigger_key_press, args=[entry_list[index].get()])
         config.set('Settings', 'Alt+{}'.format(index+1), entry_list[index].get())
     with open('config.ini', 'w') as config_file:
@@ -29,7 +29,7 @@ def on_closing():
 
 def update_hotkey():
     kb.unhook_all_hotkeys()
-    for index in range(3):
+    for index in range(hk_totoals):
         kb.add_hotkey('alt+{}'.format(index+1), trigger_key_press, args=[entry_list[index].get()])
 
 def init_config():
@@ -40,7 +40,8 @@ def init_config():
         'Theme': 0,
         'Alt+1': 'hg',
         'Alt+2': '3',
-        'Alt+3': 'q'
+        'Alt+3': 'q',
+        'Alt+4': '4'
         }
     with open('config.ini', 'w') as config_file:
         config.write(config_file)
@@ -63,9 +64,10 @@ def switch_theme():
     next_theme = theme_list[theme_index]
     theme_name.set(next_theme.name)
     window.configure (bg=next_theme.bg_window)
+    topic.configure(bg=next_theme.bg_label,fg=next_theme.fg_label)
     button1.configure(bg=next_theme.bg_button, fg=next_theme.fg_button)
     button2.configure(bg=next_theme.bg_button, fg=next_theme.fg_button)
-    for index in range(3):
+    for index in range(hk_totoals):
         label_list[index].configure(bg=next_theme.bg_label,fg=next_theme.fg_label)
         entry_list[index].configure(bg=next_theme.bg_entry,fg=next_theme.fg_entry)
 
@@ -78,13 +80,14 @@ if __name__ == "__main__":
     width  = config.getint('Settings', 'Window-Width')
     hight  = config.getint('Settings', 'Window-height')
     icon   = config.get('Settings', 'Icon')
+    #internal variable
+    hk_totoals = 4
     theme0 = Theme('竹雅白','#edf7f7','#a3d4b9','#000000','#d5dbd9')
     theme1 = Theme('赭宸紫','#542d66','#542d66','#b9c9c4','#181b47')
     theme2 = Theme('天素青','#859699','#68a9b3','#000000','#c8dde0')
     theme_list = [theme0,theme1,theme2]
     theme_index = config.getint('Settings', 'Theme')
-    #internal variable
-    alt_list = [config.get('Settings', 'Alt+{}'.format(index+1)) for index in range(3)]
+    alt_list = [config.get('Settings', 'Alt+{}'.format(index+1)) for index in range(hk_totoals)]
 
     #Tkinter initialize
     window = tk.Tk(className="一键喊话")
@@ -97,18 +100,18 @@ if __name__ == "__main__":
 
     #Tkinter variable
     theme_name = tk.StringVar(value=theme_list[theme_index].name)
-    arg_list = [tk.StringVar(value=alt_list[index]) for index in range(3)]
+    arg_list = [tk.StringVar(value=alt_list[index]) for index in range(hk_totoals)]
     label_list = [tk.Label (text="Alt + {}:".format(index+1),
                             fg= theme_list[theme_index].fg_label,
                             bg= theme_list[theme_index].bg_label,
                             justify="left",
                             width  =10,
                             height =1,
-                            font =(12)) for index in range(3)]
+                            font =(12)) for index in range(hk_totoals)]
     entry_list = [tk.Entry(textvariable=arg_list[index],
                            font=(12),
                            fg  = theme_list[theme_index].fg_entry,
-                           bg  = theme_list[theme_index].bg_entry) for index in range(3)]
+                           bg  = theme_list[theme_index].bg_entry) for index in range(hk_totoals)]
     button1 = tk.Button(window,
                         text="保存热键",
                         command=update_hotkey,
@@ -121,16 +124,18 @@ if __name__ == "__main__":
                         fg = theme_list[theme_index].fg_button,
                         bg = theme_list[theme_index].bg_button
                         )
+    topic = tk.Label(bg=theme_list[theme_index].bg_label)
 
     #add the widget in window
-    button2.grid(row=0, column=0,rowspan=1,columnspan=3,pady=10)
-    button1.grid(row=2, column=2,rowspan=3,padx=20)
-    for index in range(3):
-        label_list[index].grid(row=index+1, column=0)
-        entry_list[index].grid(row=index+1, column=1)  
+    topic.grid(row=0)
+    button2.place(x=30,y=160)
+    button1.place(x=300,y=160)
+    for index in range(hk_totoals):
+        label_list[index].grid(row=index+1, padx=30, column=0, sticky="e")
+        entry_list[index].grid(row=index+1, padx=30, column=1, sticky="w")  
 
     #add the hotkey
-    for index in range(3):
+    for index in range(hk_totoals):
         kb.add_hotkey('alt+{}'.format(index+1), trigger_key_press, args=[entry_list[index].get()])
 
     window.mainloop()
