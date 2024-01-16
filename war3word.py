@@ -19,6 +19,7 @@ def center_window(window,width,hight):
 
 def on_closing():
     print("Exit the program,Save the config in config.ini")
+    config.set('Settings', 'Theme', str(theme_index))
     for index in range(3):
         kb.add_hotkey('alt+{}'.format(index+1), trigger_key_press, args=[entry_list[index].get()])
         config.set('Settings', 'Alt+{}'.format(index+1), entry_list[index].get())
@@ -34,8 +35,9 @@ def update_hotkey():
 def init_config():
     config['Settings'] = {
         'Window-Width': 400,
-        'Window-height': 100,
+        'Window-height': 200,
         'Icon': 'icon2.ico',
+        'Theme': 0,
         'Alt+1': 'hg',
         'Alt+2': '3',
         'Alt+3': 'q'
@@ -44,7 +46,8 @@ def init_config():
         config.write(config_file)
 
 class Theme:
-    def __init__(self,bg_entry,bg_button,fg_button,bg_window):
+    def __init__(self,name,bg_entry,bg_button,fg_button,bg_window):
+        self.name      = name
         self.bg_entry  = bg_entry
         self.fg_entry  = fg_button
         self.bg_button = bg_button
@@ -58,6 +61,7 @@ def switch_theme():
     theme_index = (theme_index + 1)%len(theme_list)
     print('{} switch to {},totals {}'.format(theme_index,theme_index+1,len(theme_list)))
     next_theme = theme_list[theme_index]
+    theme_name.set(next_theme.name)
     window.configure (bg=next_theme.bg_window)
     button1.configure(bg=next_theme.bg_button, fg=next_theme.fg_button)
     button2.configure(bg=next_theme.bg_button, fg=next_theme.fg_button)
@@ -74,11 +78,11 @@ if __name__ == "__main__":
     width  = config.getint('Settings', 'Window-Width')
     hight  = config.getint('Settings', 'Window-height')
     icon   = config.get('Settings', 'Icon')
-    theme0 = Theme('#edf7f7','#a3d4b9','#000000','#d5dbd9')
-    theme1 = Theme('#542d66','#542d66','#b9c9c4','#181b47')
-    theme2 = Theme('#859699','#68a9b3','#000000','#c8dde0')
+    theme0 = Theme('竹雅白','#edf7f7','#a3d4b9','#000000','#d5dbd9')
+    theme1 = Theme('赭宸紫','#542d66','#542d66','#b9c9c4','#181b47')
+    theme2 = Theme('天素青','#859699','#68a9b3','#000000','#c8dde0')
     theme_list = [theme0,theme1,theme2]
-    theme_index = 0
+    theme_index = config.getint('Settings', 'Theme')
     #internal variable
     alt_list = [config.get('Settings', 'Alt+{}'.format(index+1)) for index in range(3)]
 
@@ -92,8 +96,9 @@ if __name__ == "__main__":
     window.protocol("WM_DELETE_WINDOW", on_closing)
 
     #Tkinter variable
+    theme_name = tk.StringVar(value=theme_list[theme_index].name)
     arg_list = [tk.StringVar(value=alt_list[index]) for index in range(3)]
-    label_list = [tk.Label(text="Alt + {}:".format(index+1),
+    label_list = [tk.Label (text="Alt + {}:".format(index+1),
                             fg= theme_list[theme_index].fg_label,
                             bg= theme_list[theme_index].bg_label,
                             justify="left",
@@ -104,23 +109,25 @@ if __name__ == "__main__":
                            font=(12),
                            fg  = theme_list[theme_index].fg_entry,
                            bg  = theme_list[theme_index].bg_entry) for index in range(3)]
-    button1 = tk.Button(window, text="保存配置",
+    button1 = tk.Button(window,
+                        text="保存热键",
                         command=update_hotkey,
                         fg = theme_list[theme_index].fg_button,
                         bg = theme_list[theme_index].bg_button
                         )
-    button2 = tk.Button(window, text="切换主题", 
+    button2 = tk.Button(window, 
+                        textvariable=theme_name, 
                         command=switch_theme,
                         fg = theme_list[theme_index].fg_button,
                         bg = theme_list[theme_index].bg_button
                         )
 
     #add the widget in window
-    button1.grid(row=0, column=2,rowspan=2,padx=20)
-    button2.grid(row=2, column=2)
+    button2.grid(row=0, column=0,rowspan=1,columnspan=3,pady=10)
+    button1.grid(row=2, column=2,rowspan=3,padx=20)
     for index in range(3):
-        label_list[index].grid(row=index, column=0)
-        entry_list[index].grid(row=index, column=1)  
+        label_list[index].grid(row=index+1, column=0)
+        entry_list[index].grid(row=index+1, column=1)  
 
     #add the hotkey
     for index in range(3):
