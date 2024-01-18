@@ -89,6 +89,7 @@ if __name__ == "__main__":
     theme_index = config.getint('Settings', 'Theme')
     alt_list = [config.get('Settings', 'Alt+{}'.format(index+1)) for index in range(hk_totoals)]
 
+
     #Tkinter initialize
     window = tk.Tk(className="一键喊话")
     window.iconbitmap(icon)
@@ -131,8 +132,8 @@ if __name__ == "__main__":
     button2.place(x=30,y=160)
     button1.place(x=300,y=160)
     for index in range(hk_totoals):
-        label_list[index].grid(row=index+1, padx=30, column=0, sticky="e")
-        entry_list[index].grid(row=index+1, padx=30, column=1, sticky="w")  
+        label_list[index].grid(row=index+1, padx=10, column=0, sticky="e")
+        entry_list[index].grid(row=index+1, padx=10, column=1, sticky="w")  
 
     #add the hotkey
     for index in range(hk_totoals):
