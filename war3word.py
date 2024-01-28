@@ -3,6 +3,7 @@ import time
 import tkinter as tk
 import configparser
 import os
+import platform
 
 def trigger_key_press(keystring):
     time.sleep(0.15)
@@ -36,7 +37,7 @@ def init_config():
     config['Settings'] = {
         'Window-Width': 400,
         'Window-height': 200,
-        'Icon': 'icon2.ico',
+        'Icon': 'icon2',
         'Theme': 0,
         'Alt+1': 'hg',
         'Alt+2': '3',
@@ -72,6 +73,7 @@ def switch_theme():
         entry_list[index].configure(bg=next_theme.bg_entry,fg=next_theme.fg_entry)
 
 if __name__ == "__main__":
+    os_name = platform.system()
     #config the variable      
     config = configparser.ConfigParser()
     if not os.path.exists('config.ini'):
@@ -92,7 +94,10 @@ if __name__ == "__main__":
 
     #Tkinter initialize
     window = tk.Tk(className="一键喊话")
-    window.iconbitmap(icon)
+    if os_name == 'Windows':
+        window.iconbitmap(icon+".ico")
+    if os_name == 'Linux':
+        window.iconphoto(True,tk.PhotoImage(file=(icon+".png")))
     window.geometry("{}x{}".format(width,hight))
     window.configure(bg = theme_list[theme_index].bg_window)
     center_window(window,width,hight)
